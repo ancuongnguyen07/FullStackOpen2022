@@ -3,6 +3,30 @@
 import { useState, useEffect } from 'react';
 import personService from './services/persons';
 
+const errorStyle = {
+  color: 'red',
+  background: 'lightgrey',
+  fontSize: 20,
+  borderStyle: 'solid',
+  borderRadius: 5,
+  padding: 10,
+  marginBottom: 10
+}
+
+const successfullStyle = {...errorStyle, color: 'green'}
+
+const Header = ({message, style}) => {
+  if (message === null){
+    return null
+  }
+
+  return (
+    <div style={style}>
+      {message}
+    </div>
+  )
+}
+
 const Persons = ({persons, deleteFunc}) => persons.map((person) => (
   <div key={person.id}>
     <p>{person.name} {person.number}</p>
@@ -50,6 +74,8 @@ function App() {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchedname, setSearchedName] = useState('')
+  const [headerMess, setHeaderMess] = useState(null)
+  const [messStyle, setMessStyle] = useState({})
 
   const handleTypeName = (event) => {
     setNewName(event.target.value)
@@ -57,6 +83,12 @@ function App() {
 
   const handleTypeNumber = (event) => {
     setNewNumber(event.target.value)
+  }
+
+  const displayMess = (mess, style) => {
+    setHeaderMess(mess)
+    setMessStyle(style)
+    setTimeout(() => setHeaderMess(null),3000)
   }
 
   const addNewPerson = () => {
@@ -76,6 +108,17 @@ function App() {
                 setPersons(updatedPersons)
                 setNewName('')
                 setNewNumber('')
+
+                // display anoucement
+                displayMess(`${newNumber} is updated to ${newName}`, successfullStyle)
+              })
+              .catch(error => {
+                const updatedPersons = dbPersons.filter(p => p.id !== id)
+                setDbPersons(updatedPersons)
+                setPersons(updatedPersons)
+
+                // display anoucement
+                displayMess(`Information of ${newName} has already been removed from the server`, errorStyle)
               })
              }
     } else if (existedNumber !== undefined){
@@ -90,6 +133,9 @@ function App() {
         setNewName('')
         setNewNumber('')
         setSearchedName('')
+
+        // display anouncement
+        displayMess(`${newName} is added`, successfullStyle)
       })
     }
   }
@@ -118,6 +164,7 @@ function App() {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Header message={headerMess} style={messStyle} />
       <Filter val={searchedname} onChangeFunc={searchName} />
       <h2>add a new</h2>
       <PersonForm name={newName} nameOnChangeFunc={handleTypeName} 
