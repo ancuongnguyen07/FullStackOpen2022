@@ -13,19 +13,21 @@ const Country = ({country}) => {
     const [weatherInfo, setNewWeather] = useState({})
 
     const onClickShowCountry = () => {
-
         const capital = country.capital[0].replaceAll(' ','%20')
         // hide or show
         country.isDisplayed = !country.isDisplayed
 
         // fetching weather data from openweather API
-        axios
+        if (country.isDisplayed){
+            axios
             .get(`https://api.openweathermap.org/data/2.5/weather?q=${capital}&appid=47fd099e8a28580d62bfd218d2f03cc2&units=metric`)
             .then(response => {
                 // console.log("weather info OK")
                 setNewWeather(response.data)
             })
-        
+        } else{
+            setNewWeather({})
+        }
       }
     
 
