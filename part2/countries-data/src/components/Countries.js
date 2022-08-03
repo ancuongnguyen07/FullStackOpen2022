@@ -69,6 +69,6 @@ const Countries = ({foundedCountriesList}) => {
         ))
         
     }
-    return;
+    return <p>No matches, specify some other filter</p>;
 } 
 export default Countries;
