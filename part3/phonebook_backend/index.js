@@ -1,6 +1,22 @@
 const express = require('express')
+const morgan = require('morgan')
+
 const app = express()
+
+// middleware config
 app.use(express.json())
+app.use(morgan((tokens, req, res) => {
+    const body = req.body
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms',
+        JSON.stringify(body)
+    ].join(' ')
+}))
+
 
 const RANDOM_RANGE = 100000
 
