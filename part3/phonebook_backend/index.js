@@ -1,5 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 const app = express()
 
@@ -16,6 +17,8 @@ app.use(morgan((tokens, req, res) => {
         JSON.stringify(body)
     ].join(' ')
 }))
+app.use(cors())
+app.use(express.static('build'))
 
 
 const RANDOM_RANGE = 100000
@@ -51,7 +54,7 @@ app.get('/api/persons', (request, response) => {
 // info page
 app.get('/info', (request, response) => {
     response.send(
-        `<p>Phone book has info for ${persons.length} people</p>
+        `<p>Phone book has info for ${people.length} people</p>
         <p>${new Date()}</p>`
     )
 })
@@ -119,6 +122,7 @@ app.post('/api/persons/', (request, response) => {
     response.json(newPerson)
 })
 
-const PORT = 3001
-app.listen(PORT)
-console.log(`Server is running on ${PORT} port`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+    console.log(`Server is running on ${PORT} port`)
+})
