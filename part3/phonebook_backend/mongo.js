@@ -3,10 +3,10 @@ const mongo = require('mongoose')
 const addPerson = (url, person) => {
     mongo
         .connect(url)
-        .then((result) => {
+        .then(() => {
             console.log('connect')
 
-            person.save().then(result => {
+            person.save().then(() => {
                 mongo.connection.close()
             })
             console.log(`added ${person.name} number ${person.number} to phonebook`)
