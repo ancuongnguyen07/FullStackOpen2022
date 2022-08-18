@@ -49,10 +49,12 @@ const RANDOM_RANGE = 100000
 // ]
 
 // list all persons
-app.get('/api/persons', (request, response) => {
-    Person.find({}).then(people => {
-        response.json(people)
-    })
+app.get('/api/persons', (request, response, next) => {
+    Person.find({})
+        .then(people => {
+            response.json(people)
+        })
+        .catch(err => next(err))
 })
 
 // info page
@@ -68,7 +70,7 @@ app.get('/info', (request, response) => {
 })
 
 // display a single person's info
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     const id = String(request.params.id)
     // const person = people.find(p => p.id === id)
 
@@ -79,13 +81,19 @@ app.get('/api/persons/:id', (request, response) => {
     // console.log('Person exists')
     // response.json(person)
 
-    Person.findById(id).then(person => {
-        response.json(person)
-    })
+    Person.findById(id)
+        .then(person => {
+            if (person){
+                response.json(person)
+            } else{
+                response.status(404).end()
+            }
+        })
+        .catch(err => next(err))
 })
 
 // delete a single person
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     const id = String(request.params.id)
     // const person = people.find(p => p.id === id)
 
@@ -98,13 +106,16 @@ app.delete('/api/persons/:id', (request, response) => {
 
     Person.findByIdAndDelete(id)
         .then((person) => {
-            console.log(`deleted id: ${person.id}`)
-            response.status(204).end()
+            if (person){
+                console.log(`deleted id: ${person.id}`)
+                response.status(204).end()
+            } else{
+                console.log('id does not exist')
+                response.status(400).end()
+            }
+            
         })
-        .catch(err => {
-            console.log('Non-existed id')
-            response.status(400).end()
-        })
+        .catch(err => next(err))
 
 })
 
@@ -112,7 +123,7 @@ const generateId = () => {
     return Math.floor(Math.random() * RANDOM_RANGE)
 }
 
-const errorHandling = (message) => {
+const newPersonErrorHandler = (message) => {
     return response.status(400).json({
         error: `${message}`
     })
@@ -126,13 +137,13 @@ app.post('/api/persons/', (request, response) => {
     Person.find({name: body.name}).then(() => duplicatedName = true)
 
     if (!body){
-        return errorHandling('Missing body content')
+        return newPersonErrorHandler('Missing body content')
     } else if (!body.name){
-        return errorHandling('Missing name')
+        return newPersonErrorHandler('Missing name')
     } else if (!body.number){
-        return errorHandling('Missing number')
+        return newPersonErrorHandler('Missing number')
     } else if (duplicatedName){
-        return errorHandling('name must be unique')
+        return newPersonErrorHandler('name must be unique')
     }
 
     // const id = generateId()
@@ -143,32 +154,55 @@ app.post('/api/persons/', (request, response) => {
     })
 
     // people = people.concat(newPerson)
-    newPerson.save().then(savedPerson => {
-        console.log(`name: ${body.name} | number: ${body.number} added`)
-        response.json(savedPerson)
-    })
+    newPerson.save()
+        .then(savedPerson => {
+            console.log(`name: ${body.name} | number: ${body.number} added`)
+            response.json(savedPerson)
+        })
+        .catch(err => next(err))
 })
 
 // update new number of a existed person
-app.put('/api/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
     const body = request.body
     if (!body){
-        return errorHandling('Missing body content')
+        return newPersonErrorHandler('Missing body content')
     }
 
-    Person.findByIdAndUpdate(body.id, {number: body.number})
-        .then(foundPerson => {
-            Person.findById(foundPerson.id)
-                .then(updatedPerson => {
-                    console.log(updatedPerson)
-                    response.json(updatedPerson)
-                })
+    // only fields which need to be updated
+    const person = {
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(body.id, person, { new: true})
+        .then(updatedPerson => {
+            if (updatedPerson){
+                response.json(updatedPerson)
+            } else{
+                response.status(400).end()
+            }
+            
         })
-        .catch(err => {
-            console.log(err)
-            response.statusCode(400).end()
-        })
+        .catch(err => next(err))
 })
+
+// set up handler of requests with unknown endpoint
+const unknownEndpoint = (request, response) => {
+    response.status(400).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+// set up errorhandler middleware
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message)
+    if (error.name === 'CastError'){
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
