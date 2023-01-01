@@ -23,7 +23,7 @@ const initialBlogs = [
 
 beforeEach(async () => {
     await Blog.deleteMany({})
-    console.log('cleared')
+    // console.log('cleared')
 
     // for each blog in the iniialBlogs creating a new Blog object
     // according to the Blog schema in model/blog.js
@@ -98,6 +98,21 @@ test('test missing *like* property', async () => {
 
     expect(targetBlog.likes).toEqual(0)
 
+})
+
+test('*title* or *url* missing will cause 400 Bad Request', async () => {
+    // missing *title* property blog object
+    const newBlog = {
+        title: 'Third title',
+        author: 'C author',
+        // url: 'an.another.foo.bar'
+    }
+
+    // send a HTTP POST with a new blog in the request body
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
 })
 
 afterAll(() => {
