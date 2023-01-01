@@ -1,5 +1,6 @@
 const blogRouter = require('express').Router()
 const { response } = require('../app')
+const blog = require('../models/blog')
 const Blog = require('../models/blog')
 
 // list all blogs
@@ -38,6 +39,7 @@ blogRouter.get('/:id', async (request, response) => {
     }
 })
 
+// delete a specific blog with given id
 blogRouter.delete('/:id', async (request, response) => {
     const blog = await Blog.findByIdAndDelete(request.params.id)
     if (blog){
@@ -46,6 +48,25 @@ blogRouter.delete('/:id', async (request, response) => {
     else{
         response.status(400).end()
     }
+})
+
+// update a specific blog with given id
+blogRouter.put('/:id', async (request, response) => {
+    const id = request.params.id
+    const body = request.body
+
+    const blog = {
+        likes: body.likes
+    }
+
+    const result = await Blog.findByIdAndUpdate(id, blog, {new: true})
+    if (result){
+        response.status(200).json(result)
+    }
+    else{
+        response.status(400).end()
+    }
+
 })
 
 module.exports = blogRouter

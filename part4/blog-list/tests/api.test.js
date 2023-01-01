@@ -140,6 +140,31 @@ describe('Deleting a specific blog', () => {
     })
 })
 
+describe('Updating a specific blog', () => {
+    test('a valid id', async () => {
+        // retrieve all blogs from DB
+        const responseStart = await api.get('/api/blogs')
+        const originalBlog = responseStart.body[0]
+        const updatedBlog = {
+            ...originalBlog,
+            likes: originalBlog.likes + 10
+        }
+
+        await api
+            .put(`/api/blogs/${updatedBlog.id}`)
+            .send(updatedBlog)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+
+        const responseEnd = await api
+                                .get(`/api/blogs/${originalBlog.id}`)
+                                .expect(200)
+                                .expect('Content-Type', /application\/json/)
+
+        expect(responseEnd.body.likes).toEqual(updatedBlog.likes)
+    })
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
