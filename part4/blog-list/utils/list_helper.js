@@ -22,10 +22,10 @@ const mostBlogs = (blogs) => {
         return {}
     }
     return _.chain(blogs)
-                        .countBy('author')
-                        .map((value, key) => ({author: key, blogs: value}))
-                        .maxBy('blogs')
-                        .value()
+                .countBy('author')
+                .map((value, key) => ({author: key, blogs: value}))
+                .maxBy('blogs')
+                .value()
                         
 }
 
@@ -34,16 +34,16 @@ const mostLikes = (blogs) => {
         return {}
     }
     return _.chain(blogs)
-                        .groupBy('author')
-                        .map((values, key) => {
-                            const numOfLikes = values.reduce(
-                                (preVal, currBlog) => preVal + currBlog.likes,
-                                0
-                            )
-                            return ({author: key, likes: numOfLikes})
-                        })
-                        .maxBy('likes')
-                        .value()
+                .groupBy('author')
+                .map((values, key) => {
+                    const numOfLikes = values.reduce(
+                        (preVal, currBlog) => preVal + currBlog.likes,
+                        0
+                    )
+                    return ({author: key, likes: numOfLikes})
+                })
+                .maxBy('likes')
+                .value()
 }
 
 module.exports = {
