@@ -2,6 +2,7 @@ const Blog = require('../models/blog')
 const supertest = require('supertest')
 const app = require('../app')
 const mongoose = require('mongoose')
+const { json } = require('express')
 
 const api = supertest(app)
 
@@ -42,6 +43,37 @@ test('get all blogs on the DB', async () => {
     
     expect(response.header['content-type']).toMatch(/application\/json/)
     expect(response.body).toHaveLength(initialBlogs.length)
+})
+
+test('test defined unique identifier (ID) of blogs', async () => {
+    const response = await api.get('/api/blogs')
+
+    response.body.map(blog => expect(blog['id']).toBeDefined())
+})
+
+test('add a new blog to DB successfully', async () => {
+    // new blog is going to be added
+    const newBlog = {
+        title: 'Third title',
+        author: 'C author',
+        url: 'an.another.foo.bar',
+        likes: 2
+    }
+
+    // send a HTTP POST with a new blog in the request body
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    // retrieve all blogs from DB
+    const response = await api.get('/api/blogs')
+    // get all the titles
+    const titles = response.body.map(blog => blog['title'])
+
+    expect(response.body).toHaveLength(initialBlogs.length + 1)
+    expect(titles).toContain('Third title')
 })
 
 afterAll(() => {
