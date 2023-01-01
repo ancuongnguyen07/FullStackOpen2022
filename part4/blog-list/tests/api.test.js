@@ -76,6 +76,30 @@ test('add a new blog to DB successfully', async () => {
     expect(titles).toContain('Third title')
 })
 
+test('test missing *like* property', async () => {
+    // missing *like* property blog object
+    const newBlog = {
+        title: 'Third title',
+        author: 'C author',
+        url: 'an.another.foo.bar'
+    }
+
+    // send a HTTP POST with a new blog in the request body
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    // retrieve all blogs from DB
+    const response = await api.get('/api/blogs')
+    const targetBlog = response.body
+                        .find(blog => blog.title === 'Third title')
+
+    expect(targetBlog.likes).toEqual(0)
+
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })
