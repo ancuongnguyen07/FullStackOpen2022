@@ -36,83 +36,108 @@ beforeEach(async () => {
     await Promise.all(promiseArray)
 })
 
-test('get all blogs on the DB', async () => {
-    // await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/)
-    const response = await api.get('/api/blogs')
-    // const retrievedBlogList = response.body
+describe('when there are some blogs saved', () => {
+    test('get all blogs on the DB', async () => {
+        // await api.get('/api/blogs').expect(200).expect('Content-Type', /application\/json/)
+        const response = await api.get('/api/blogs')
+        // const retrievedBlogList = response.body
+        
+        expect(response.header['content-type']).toMatch(/application\/json/)
+        expect(response.body).toHaveLength(initialBlogs.length)
+    })
     
-    expect(response.header['content-type']).toMatch(/application\/json/)
-    expect(response.body).toHaveLength(initialBlogs.length)
+    test('test defined unique identifier (ID) of blogs', async () => {
+        const response = await api.get('/api/blogs')
+    
+        response.body.map(blog => expect(blog['id']).toBeDefined())
+    })
 })
 
-test('test defined unique identifier (ID) of blogs', async () => {
-    const response = await api.get('/api/blogs')
-
-    response.body.map(blog => expect(blog['id']).toBeDefined())
+describe('addition of a new blog', () => {
+    test('add a new blog to DB successfully', async () => {
+        // new blog is going to be added
+        const newBlog = {
+            title: 'Third title',
+            author: 'C author',
+            url: 'an.another.foo.bar',
+            likes: 2
+        }
+    
+        // send a HTTP POST with a new blog in the request body
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+    
+        // retrieve all blogs from DB
+        const response = await api.get('/api/blogs')
+        // get all the titles
+        const titles = response.body.map(blog => blog['title'])
+    
+        expect(response.body).toHaveLength(initialBlogs.length + 1)
+        expect(titles).toContain('Third title')
+    })
+    
+    test('test missing *like* property', async () => {
+        // missing *like* property blog object
+        const newBlog = {
+            title: 'Third title',
+            author: 'C author',
+            url: 'an.another.foo.bar'
+        }
+    
+        // send a HTTP POST with a new blog in the request body
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+    
+        // retrieve all blogs from DB
+        const response = await api.get('/api/blogs')
+        const targetBlog = response.body
+                            .find(blog => blog.title === 'Third title')
+    
+        expect(targetBlog.likes).toEqual(0)
+    
+    })
+    
+    test('*title* or *url* missing will cause 400 Bad Request', async () => {
+        // missing *title* or *url* property blog object
+        const newBlog = {
+            title: 'Third title',
+            author: 'C author',
+            // url: 'an.another.foo.bar'
+        }
+    
+        // send a HTTP POST with a new blog in the request body
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(400)
+    })
 })
 
-test('add a new blog to DB successfully', async () => {
-    // new blog is going to be added
-    const newBlog = {
-        title: 'Third title',
-        author: 'C author',
-        url: 'an.another.foo.bar',
-        likes: 2
-    }
+describe('Deleting a specific blog', () => {
+    test('if the id is non-existing, returning 400', async () => {
+        // retrieve all blogs from DB
+        const responseStart = await api.get('/api/blogs')
 
-    // send a HTTP POST with a new blog in the request body
-    await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(201)
-        .expect('Content-Type', /application\/json/)
+        const deletedBlog = responseStart.body[0]
 
-    // retrieve all blogs from DB
-    const response = await api.get('/api/blogs')
-    // get all the titles
-    const titles = response.body.map(blog => blog['title'])
+        await api
+            .delete(`/api/blogs/${deletedBlog.id}`)
+            .expect(204)
 
-    expect(response.body).toHaveLength(initialBlogs.length + 1)
-    expect(titles).toContain('Third title')
-})
+        // after deleting, all blogs from DB
+        const responseEnd = await api.get('/api/blogs')
+        
+        expect(responseEnd.body).toHaveLength(initialBlogs.length - 1)
 
-test('test missing *like* property', async () => {
-    // missing *like* property blog object
-    const newBlog = {
-        title: 'Third title',
-        author: 'C author',
-        url: 'an.another.foo.bar'
-    }
-
-    // send a HTTP POST with a new blog in the request body
-    await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(201)
-        .expect('Content-Type', /application\/json/)
-
-    // retrieve all blogs from DB
-    const response = await api.get('/api/blogs')
-    const targetBlog = response.body
-                        .find(blog => blog.title === 'Third title')
-
-    expect(targetBlog.likes).toEqual(0)
-
-})
-
-test('*title* or *url* missing will cause 400 Bad Request', async () => {
-    // missing *title* property blog object
-    const newBlog = {
-        title: 'Third title',
-        author: 'C author',
-        // url: 'an.another.foo.bar'
-    }
-
-    // send a HTTP POST with a new blog in the request body
-    await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(400)
+        const authors = responseEnd.body.map(blog => blog.author)
+        expect(authors).not.toContain('A author')
+    })
 })
 
 afterAll(() => {
