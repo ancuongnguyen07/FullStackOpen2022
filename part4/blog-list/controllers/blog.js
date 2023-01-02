@@ -2,6 +2,7 @@ const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const middleware = require('../utils/middleware')
 
 // list all blogs
 blogRouter.get('/', async (request, response) => {
@@ -10,16 +11,9 @@ blogRouter.get('/', async (request, response) => {
     response.json(blogs)
 })
 
-// const getTokenFrom = request => {
-//     const authorization = request.get('authorization')
-//     if (authorization && authorization.toLowerCase().startsWith('bearer ')){
-//         return authorization.substring(7)
-//     }
-//     return null
-// }
-
-// post a new blog
-blogRouter.post('/', async (request, response, next) => {
+// add a new blog
+blogRouter.post('/', middleware.tokenExtractor,
+                middleware.userExtractor ,async (request, response, next) => {
     const body = request.body
     // const token = getTokenFrom(request)
     const token = request.token
@@ -30,7 +24,8 @@ blogRouter.post('/', async (request, response, next) => {
             return response.status(401).json({ error: 'token missing or invalid'})
         }
     
-        const user = await User.findById(decodedToken.id)
+        // const user = await User.findById(decodedToken.id)
+        const user = request.user
     
         const blog = new Blog({
             title: body.title,
@@ -54,8 +49,6 @@ blogRouter.post('/', async (request, response, next) => {
     } catch(error){
         next(error)
     }
-
-    
 })
 
 // list a specific blog with given ID
@@ -71,9 +64,11 @@ blogRouter.get('/:id', async (request, response) => {
 })
 
 // delete a specific blog with given id
-blogRouter.delete('/:id', async (request, response, next) => {
+blogRouter.delete('/:id', middleware.tokenExtractor,
+                middleware.userExtractor ,async (request, response, next) => {
     const id = request.params.id
     const token = request.token
+    const user = request.user
 
     try{
         const decodedToken = jwt.verify(token, process.env.SECRET)
@@ -81,8 +76,13 @@ blogRouter.delete('/:id', async (request, response, next) => {
             return response.status(401).json({ error: 'token missing or invalid'})
         }
 
-        const blog = await Blog.findByIdAndDelete(id)
+        const blog = await Blog.findById(id)
+
+        // const blog = await Blog.findByIdAndDelete(id)
         if (blog){
+            if (blog.user.toString() === user._id.toString()){
+                await blog.delete()
+            }
             response.status(204).end()
         }
         else{

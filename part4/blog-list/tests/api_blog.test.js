@@ -2,6 +2,7 @@ const Blog = require('../models/blog')
 const supertest = require('supertest')
 const app = require('../app')
 const mongoose = require('mongoose')
+const helper = require('./helper')
 // const { json } = require('express')
 
 const api = supertest(app)
@@ -66,6 +67,7 @@ describe('addition of a new blog', () => {
         // send a HTTP POST with a new blog in the request body
         await api
             .post('/api/blogs')
+            .set('Authorization', `bearer ${process.env.VALIDTOKEN}`)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -77,6 +79,31 @@ describe('addition of a new blog', () => {
     
         expect(response.body).toHaveLength(initialBlogs.length + 1)
         expect(titles).toContain('Third title')
+    })
+
+    test('add a new blog with unvalid token, returning 401', async () => {
+        // new blog is going to be added
+        const newBlog = {
+            title: 'Third title',
+            author: 'C author',
+            url: 'an.another.foo.bar',
+            likes: 2
+        }
+    
+        // send a HTTP POST with a new blog in the request body
+        await api
+            .post('/api/blogs')
+            .set('Authorization', `bearer ${process.env.VALIDTOKEN}xxx`)
+            .send(newBlog)
+            .expect(401)
+    
+        // retrieve all blogs from DB
+        const response = await api.get('/api/blogs')
+        // get all the titles
+        const titles = response.body.map(blog => blog['title'])
+    
+        expect(response.body).toHaveLength(initialBlogs.length)
+        expect(titles).not.toContain('Third title')
     })
     
     test('test missing *like* property', async () => {
@@ -90,6 +117,7 @@ describe('addition of a new blog', () => {
         // send a HTTP POST with a new blog in the request body
         await api
             .post('/api/blogs')
+            .set('Authorization', `bearer ${process.env.VALIDTOKEN}`)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -114,6 +142,7 @@ describe('addition of a new blog', () => {
         // send a HTTP POST with a new blog in the request body
         await api
             .post('/api/blogs')
+            .set('Authorization', `bearer ${process.env.VALIDTOKEN}`)
             .send(newBlog)
             .expect(400)
     })
@@ -121,22 +150,39 @@ describe('addition of a new blog', () => {
 
 describe('Deleting a specific blog', () => {
     test('if the id is non-existing, returning 400', async () => {
+
+        // new blog is going to be added
+        const newBlog = {
+            title: 'Third title',
+            author: 'C author',
+            url: 'an.another.foo.bar',
+            likes: 2
+        }
+    
+        // send a HTTP POST with a new blog in the request body
+        await api
+            .post('/api/blogs')
+            .set('Authorization', `bearer ${process.env.VALIDTOKEN}`)
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+
         // retrieve all blogs from DB
         const responseStart = await api.get('/api/blogs')
-
-        const deletedBlog = responseStart.body[0]
+        const deletedBlog = responseStart.body.find(blog => blog.title === 'Third title')
 
         await api
             .delete(`/api/blogs/${deletedBlog.id}`)
+            .set('Authorization', `bearer ${process.env.VALIDTOKEN}`)
             .expect(204)
 
         // after deleting, all blogs from DB
         const responseEnd = await api.get('/api/blogs')
         
-        expect(responseEnd.body).toHaveLength(initialBlogs.length - 1)
+        expect(responseEnd.body).toHaveLength(responseStart.body.length - 1)
 
         const authors = responseEnd.body.map(blog => blog.author)
-        expect(authors).not.toContain('A author')
+        expect(authors).not.toContain('C author')
     })
 })
 
