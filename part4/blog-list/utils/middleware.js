@@ -21,4 +21,17 @@ const errorHandler = (error, request, response, next) => {
     next(error)
 }
 
-module.exports = { unknownEndpoint, errorHandler}
+const tokenExtractor = (request, response, next) => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')){
+        const token = authorization.substring(7)
+        request.token = token
+    }
+    else{
+        request.token = null
+    }
+
+    next()
+}
+
+module.exports = { unknownEndpoint, errorHandler, tokenExtractor }
