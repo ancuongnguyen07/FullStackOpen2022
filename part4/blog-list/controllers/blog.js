@@ -71,14 +71,30 @@ blogRouter.get('/:id', async (request, response) => {
 })
 
 // delete a specific blog with given id
-blogRouter.delete('/:id', async (request, response) => {
-    const blog = await Blog.findByIdAndDelete(request.params.id)
-    if (blog){
-        response.status(204).end()
+blogRouter.delete('/:id', async (request, response, next) => {
+    const id = request.params.id
+    const token = request.token
+
+    try{
+        const decodedToken = jwt.verify(token, process.env.SECRET)
+        if (!decodedToken.id){
+            return response.status(401).json({ error: 'token missing or invalid'})
+        }
+
+        const blog = await Blog.findByIdAndDelete(id)
+        if (blog){
+            response.status(204).end()
+        }
+        else{
+            response.status(400).json({ error: 'undefined ID'})
+        }
     }
-    else{
-        response.status(400).end()
+    catch(exception){
+        next(exception)
     }
+
+
+    
 })
 
 // update a specific blog with given id

@@ -11,6 +11,13 @@ Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb
 
 ###
 
+DELETE  http://localhost:3003/api/blogs/63b34b88c342809c43618881
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzYjJlNGQzZDJlZDVkYTI0MjAyYmQyMyIsImlhdCI6MTY3MjY3MzQ4Mn0.AOCu-0rVjDYvcTXJvn5PKeaX5cQodQFdGeI5KWTNND4
+
+
+###
+
 GET http://localhost:3003/api/users
 
 ###
