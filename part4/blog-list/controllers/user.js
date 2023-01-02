@@ -10,9 +10,17 @@ userRouter.get('/', async (request, response) => {
 })
 
 // add a new user
-userRouter.post('/', async (request, response) => {
+userRouter.post('/', async (request, response, next) => {
     const { username, name, password} = request.body
 
+    if (typeof username === 'undefined' || typeof password === 'undefined'){
+        return response.status(400).send({ error: 'NULL password and username'})
+    }
+    else if (username.length < 3 || password.length < 3){
+        return response.status(400).send({ error: 'invalid length of username or password (min 3 characters'})
+    }
+
+    console.log('hehehe')
     const saltRound = 10
     const passwordHash = await bcrypt.hash(password, saltRound)
 
@@ -22,8 +30,13 @@ userRouter.post('/', async (request, response) => {
         passwordHash
     })
 
-    const savedUser = await newUser.save()
-    response.status(201).json(savedUser)
+    try{
+        const savedUser = await newUser.save()
+        response.status(201).json(savedUser)
+    }catch(exception){
+        next(exception)
+    }
+    
 })
 
 module.exports = userRouter

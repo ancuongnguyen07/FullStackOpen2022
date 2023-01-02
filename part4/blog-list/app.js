@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
+const middleware = require('./utils/middleware')
+const bodyParser = require('body-parser')
 
 app.use(cors())
 app.use(express.json())
@@ -20,7 +22,12 @@ mongoose.connect(config.MONGODB_URI)
         logger.error("error connecting to MongoDB", err.message)
     })
 
+// app.use(bodyParser.json())
+
 app.use('/api/blogs', blogRouter)
 app.use('/api/users', userRouter)
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 module.exports = app
