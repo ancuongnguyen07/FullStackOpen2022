@@ -5,5 +5,10 @@ Content-Type: application/json
     "title": "new academic year",
     "author": "Philip Muller",
     "url": "http://foo.bar",
-    "likes": 32
+    "likes": 32,
+    "userId": "63b2e4d3d2ed5da24202bd23"
 }
+
+###
+
+GET http://localhost:3003/api/users

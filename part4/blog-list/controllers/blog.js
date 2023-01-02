@@ -1,27 +1,37 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 // list all blogs
 blogRouter.get('/', async (request, response) => {
     const blogs = await Blog.find({})
+                    .populate('user', {username: 1, name: 1})
     response.json(blogs)
 })
 
 // post a new blog
 blogRouter.post('/', async (request, response) => {
     const body = request.body
+
+    const user = await User.findById(body.userId)
+
     const blog = new Blog({
-        ...body,
+        title: body.title,
+        url: body.url,
+        user: user._id,
         likes: body.likes | 0
     })
 
     if (typeof blog.title === 'undefined'
         || typeof blog.url === 'undefined'){
-            response.status(400).end()
+            response.status(400).send({error: 'NULL title or url'})
         }
     else{
-        const result = await blog.save()
-        response.status(201).json(result)
+        const savedBlog = await blog.save()
+        user.blogs = user.blogs.concat(savedBlog._id)
+        await user.save()
+
+        response.status(201).json(savedBlog)
     }
 })
 
