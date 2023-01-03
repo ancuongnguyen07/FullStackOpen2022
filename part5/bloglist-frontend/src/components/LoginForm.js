@@ -1,8 +1,27 @@
-// import { useState, useEffect} from 'react'
+import { useState} from 'react'
 // import loginService from '../services/login'
 
-const LoginForm = ({handleLogin, username, password,
-    handleChangeUsername, handleChangePassword}) => {
+const LoginForm = ({login}) => {
+
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+
+    const handleChangeUsername = (event) => {
+        setUsername(event.target.value)
+    }
+
+    const handleChangePassword = (event) => {
+        setPassword(event.target.value)
+    }
+
+    const handleLogin = (event) => {
+        event.preventDefault()
+        
+        login({username, password})
+
+        setUsername('')
+        setPassword('')
+    }
 
     return (
         <div>

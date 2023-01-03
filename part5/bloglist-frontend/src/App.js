@@ -1,29 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
-import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  // const [username, setUsername] = useState('')
+  // const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
 
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-
   // console.log(blogs.map(blog => blog.user.id))
+  const blogFromRef = useRef()
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const login = async (credential) => {
 
     try{
-      const user = await loginService.login({username,password})
+      const user = await loginService.login(credential)
 
       window.localStorage.setItem(
         'loggedInUser', JSON.stringify(user)
@@ -34,8 +31,7 @@ const App = () => {
       setUser(user)
       // setBlogs(blogs.filter(blog => blog.user.username === user.username))
       // console.log(user)
-      setUsername('')
-      setPassword('')
+
     } catch(exception){
       setErrorMessage('Wrong credentials')
       setTimeout(() => {
@@ -51,28 +47,17 @@ const App = () => {
     blogService.setToken(null)
   }
 
-  const handleAddBlog = async (event) => {
-    event.preventDefault()
-
-    const data = await blogService.create({
-      title,
-      author,
-      url,
-    })
-
-    setTitle('')
-    setAuthor('')
-    setUrl('')
-
-    setBlogs(blogs.concat(data))
-    // // const showedBlogs = updatedBlogs.filter(blog => blog.user.username === user.username)
-    // setBlogs(updatedBlogs.filter(blog => blog.user.username === user.username))
+  const addBlog = (blogObject) => {
+    blogFromRef.current.toggleVisibility()
+    blogService.create(blogObject)
+                .then(returnedBlog => {
+                  setBlogs(blogs.concat(returnedBlog))
+                })
 
     setErrorMessage('New blog added successfully')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
-
     
   }
 
@@ -100,14 +85,7 @@ const App = () => {
     <div>
       <h5>Notification: {errorMessage}</h5>
       {user === null ?
-        <LoginForm 
-        handleLogin={handleLogin}
-        username={username}
-        password={password}
-        handleChangePassword={({ target }) => setPassword(target.value)}
-        handleChangeUsername={({ target }) => setUsername(target.value)}>
-
-        </LoginForm>
+        <LoginForm login={login}></LoginForm>
         :
         <div>
           <h2>blogs</h2>
@@ -121,16 +99,10 @@ const App = () => {
             <Blog key={blog.id} blog={blog} />
           )}
 
-          <BlogForm
-            handleAddBlog={handleAddBlog}
-            title={title}
-            author={author}
-            url={url}
-            handleChangeTitle={({ target }) => setTitle(target.value)}
-            handleChangeAuthor={({ target }) => setAuthor(target.value)}
-            handleChangeUrl={({ target }) => setUrl(target.value)}>
+          <Togglable buttonLabel='New blog' ref={blogFromRef}>
+            <BlogForm addBlog={addBlog}></BlogForm>
+          </Togglable>
 
-          </BlogForm>
         </div>
         
         }

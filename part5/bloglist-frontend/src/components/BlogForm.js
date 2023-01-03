@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 const FillForm = ({title, value, handle}) => {
     return(
         <div>
@@ -12,9 +14,38 @@ const FillForm = ({title, value, handle}) => {
     )
 }
 
-const BlogForm = ({handleAddBlog, title, author, url,
-            handleChangeTitle, handleChangeAuthor,
-            handleChangeUrl}) => {
+const BlogForm = ({addBlog}) => {
+    
+    const [title, setTitle] = useState('')
+    const [author, setAuthor] = useState('')
+    const [url, setUrl] = useState('')
+
+    const handleChangeAuthor = (event) => {
+        setAuthor(event.target.value)
+    }
+
+    const handleChangeTitle = (event) => {
+        setTitle(event.target.value)
+    }
+
+    const handleChangeUrl = (event) => {
+        setUrl(event.target.value)
+    }
+
+    const handleAddBlog = (event) => {
+        event.preventDefault()
+        addBlog({
+            title,
+            author,
+            url
+        })
+
+        setTitle('')
+        setAuthor('')
+        setUrl('')
+    }
+
+
     return(
         <div>
             <h3>Create a new blog</h3>
