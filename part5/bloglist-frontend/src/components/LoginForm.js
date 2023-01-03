@@ -1,5 +1,5 @@
 import { useState} from 'react'
-// import loginService from '../services/login'
+import PropTypes from 'prop-types'
 
 const LoginForm = ({login}) => {
 
@@ -49,6 +49,10 @@ const LoginForm = ({login}) => {
         </form>
         </div>
     )
+}
+
+LoginForm.propTypes = {
+    login: PropTypes.func.isRequired
 }
 
 export default LoginForm
