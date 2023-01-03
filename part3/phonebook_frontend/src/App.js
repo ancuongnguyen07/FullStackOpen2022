@@ -113,30 +113,35 @@ function App() {
                 displayMess(`${newNumber} is updated to ${newName}`, successfullStyle)
               })
               .catch(error => {
-                const updatedPersons = dbPersons.filter(p => p.id !== id)
-                setDbPersons(updatedPersons)
-                setPersons(updatedPersons)
+                // const updatedPersons = dbPersons.filter(p => p.id !== id)
+                // setDbPersons(updatedPersons)
+                // setPersons(updatedPersons)
 
                 // display anoucement
-                displayMess(`Information of ${newName} has already been removed from the server`, errorStyle)
+                displayMess(error.response.data.error, errorStyle)
               })
              }
     } else if (existedNumber !== undefined){
       window.alert(`${newNumber} is already added to phonebook`)
     } 
     else{
-      const newPerson = {name: newName, number: newNumber, id: persons.length + 1}
-      personService.create(newPerson).then(returnedPerson => {
-        const updatedPersons = dbPersons.concat(returnedPerson)
-        setPersons(updatedPersons)
-        setDbPersons(updatedPersons)
-        setNewName('')
-        setNewNumber('')
-        setSearchedName('')
+      const newPerson = {name: newName, number: newNumber}
+      personService.create(newPerson)
+        .then(returnedPerson => {
+          const updatedPersons = dbPersons.concat(returnedPerson)
+          setPersons(updatedPersons)
+          setDbPersons(updatedPersons)
+          setNewName('')
+          setNewNumber('')
+          setSearchedName('')
 
-        // display anouncement
-        displayMess(`${newName} is added`, successfullStyle)
-      })
+          // display anouncement
+          displayMess(`${newName} is added`, successfullStyle)
+        })
+        .catch(error => {
+          // console.log('ERROR')
+          displayMess(error.response.data.error, errorStyle)
+        })
     }
   }
 

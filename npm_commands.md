@@ -1,7 +1,7 @@
-## express js
+### express js
 
 ```
-npm install 
+npm install express
 ```
 
 ### mongoDB
@@ -9,7 +9,7 @@ npm install
 ```
 npm install mongoose
 ```
-- #### unique-validotor
+### unique-validator
 
 ```
 npm install --save mongoose-unique-validator
@@ -18,13 +18,13 @@ npm install --save mongoose-unique-validator
 ### nodemon: automatically restarting the node application 
 ### when file changes in the dir are detected
 
-#### global
+### global
 
 ```
 npm install --location=global nodemon
 ```
 
-#### development dependency
+### development dependency
 
 ```
 npm install --save-dev nodemon
@@ -40,4 +40,24 @@ npm install cors
 
 ```
 npm install dotenv
+```
+
+### testing library JEST developed by Facebook (alternative to *Mocha*)
+
+```
+npm install --save-dev jest
+```
+
+### cross-platform environment
+
+```
+npm install --save-dev cross-env
+# if use in production stage
+npm i cross-env -P
+```
+
+### supertest
+
+```
+npm install --save-dev supertest
 ```
