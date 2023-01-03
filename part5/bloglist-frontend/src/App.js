@@ -17,6 +17,7 @@ const App = () => {
   // console.log(blogs.map(blog => blog.user.id))
   const blogFromRef = useRef()
 
+
   const login = async (credential) => {
 
     try{
@@ -61,6 +62,25 @@ const App = () => {
     
   }
 
+  const updateLike = (blogObject) => {
+    blogService.update(blogObject)
+                .then(returnedBlog => {
+                  setBlogs(blogs.map(blog => 
+                    blog.id === blogObject.id
+                    ? returnedBlog
+                    : blog
+                  ))
+                })
+  }
+
+  const removeBlog = (id) => {
+    blogService.remove(id)
+                .then(returnedBlog => {
+                  setBlogs(blogs.filter(blog => 
+                    blog.id !== id))
+                })
+  }
+
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
@@ -76,10 +96,12 @@ const App = () => {
     }
   }, [])
 
-  const blogsToShow = user !== null ? 
+  let blogsToShow = user !== null ? 
                     blogs.filter(blog => blog.user.username === user.username)
                     :
                     blogs
+
+  blogsToShow = blogsToShow.sort((a,b) => b.likes - a.likes)
 
   return (
     <div>
@@ -95,8 +117,14 @@ const App = () => {
             <button type='submit'>logout</button>
           </form>
 
-          {blogsToShow.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+          {blogsToShow.map(blog => {
+            
+            return (
+                <Blog blog={blog} updateLike={updateLike} removeBlog={removeBlog}/>
+            )
+          }
+            
+            
           )}
 
           <Togglable buttonLabel='New blog' ref={blogFromRef}>
