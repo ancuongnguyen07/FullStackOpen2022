@@ -5,6 +5,7 @@ const FillForm = ({ title, value, handle }) => {
     <div>
       {title}
       <input
+        id={`${title}-input`}
         type="text"
         value={value}
         name={title}
@@ -50,7 +51,8 @@ const BlogForm = ({ addBlog }) => {
     <div>
       <h3>Create a new blog</h3>
       <form onSubmit={handleAddBlog}>
-        <FillForm title="Title"
+        <FillForm 
+          title="Title"
           value={title}
           handle={handleChangeTitle}
         ></FillForm>
