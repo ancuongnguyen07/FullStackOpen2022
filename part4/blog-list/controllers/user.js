@@ -21,7 +21,7 @@ userRouter.post('/', async (request, response, next) => {
         return response.status(400).send({ error: 'invalid length of username or password (min 3 characters'})
     }
 
-    console.log('hehehe')
+    // console.log('hehehe')
     const saltRound = 10
     const passwordHash = await bcrypt.hash(password, saltRound)
 

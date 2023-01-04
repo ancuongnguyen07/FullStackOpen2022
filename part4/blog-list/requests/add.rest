@@ -1,12 +1,12 @@
 POST http://localhost:3003/api/blogs/
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzYjJlNGQzZDJlZDVkYTI0MjAyYmQyMyIsImlhdCI6MTY3MjY3MzQ4Mn0.AOCu-0rVjDYvcTXJvn5PKeaX5cQodQFdGeI5KWTNND4
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzYjQxNWE5ZjEzNzRjZGFmM2EzYWNhNiIsImlhdCI6MTY3Mjc0NjU2M30.Bt5DRF8LBDYwTSjnrgXMzNO-kuBx3JKNI4JDPd3SKAY
 
 {
-    "title": "HIHIHIHxxxxx",
-    "author": "Cuongddddd",
-    "url": "http://foo.bar",
-    "likes": 32
+    "title": "Third blog",
+    "author": "Watanabe",
+    "url": "http://jp.foo.bar",
+    "likes": 6
 }
 
 ###
@@ -19,6 +19,17 @@ Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb
 ###
 
 GET http://localhost:3003/api/users
+
+###
+
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "name": "kiko",
+    "password": "second_secret"
+}
 
 ###
 
