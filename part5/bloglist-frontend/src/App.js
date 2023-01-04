@@ -51,40 +51,40 @@ const App = () => {
   const addBlog = (blogObject) => {
     blogFromRef.current.toggleVisibility()
     blogService.create(blogObject)
-                .then(returnedBlog => {
-                  setBlogs(blogs.concat(returnedBlog))
-                })
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+      })
 
     setErrorMessage('New blog added successfully')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
+
   }
 
   const updateLike = (blogObject) => {
     blogService.update(blogObject)
-                .then(returnedBlog => {
-                  setBlogs(blogs.map(blog => 
-                    blog.id === blogObject.id
-                    ? returnedBlog
-                    : blog
-                  ))
-                })
+      .then(returnedBlog => {
+        setBlogs(blogs.map(blog =>
+          blog.id === blogObject.id
+            ? returnedBlog
+            : blog
+        ))
+      })
   }
 
   const removeBlog = (id) => {
     blogService.remove(id)
-                .then(returnedBlog => {
-                  setBlogs(blogs.filter(blog => 
-                    blog.id !== id))
-                })
+      .then(returnedBlog => {
+        setBlogs(blogs.filter(blog =>
+          blog.id !== id))
+      })
   }
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -96,10 +96,10 @@ const App = () => {
     }
   }, [])
 
-  let blogsToShow = user !== null ? 
-                    blogs.filter(blog => blog.user.username === user.username)
-                    :
-                    blogs
+  let blogsToShow = user !== null ?
+    blogs.filter(blog => blog.user.username === user.username)
+    :
+    blogs
 
   blogsToShow = blogsToShow.sort((a,b) => b.likes - a.likes)
 
@@ -118,13 +118,13 @@ const App = () => {
           </form>
 
           {blogsToShow.map(blog => {
-            
+
             return (
-                <Blog blog={blog} updateLike={updateLike} removeBlog={removeBlog}/>
+              <Blog blog={blog} updateLike={updateLike} removeBlog={removeBlog}/>
             )
           }
-            
-            
+
+
           )}
 
           <Togglable buttonLabel='New blog' ref={blogFromRef}>
@@ -132,8 +132,8 @@ const App = () => {
           </Togglable>
 
         </div>
-        
-        }
+
+      }
     </div>
   )
 }

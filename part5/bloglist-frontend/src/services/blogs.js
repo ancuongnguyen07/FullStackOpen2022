@@ -15,7 +15,7 @@ const setToken = newToken => {
 // create a new blog
 const create = async newObject => {
   const config = {
-    headers: { Authorization: token}
+    headers: { Authorization: token }
   }
 
   const response = await axios.post(baseUrl, newObject, config)
@@ -26,7 +26,7 @@ const create = async newObject => {
 // update a blog
 const update = async newObject => {
   const config = {
-    headers: { Authorization: token}
+    headers: { Authorization: token }
   }
 
   const id =  newObject.id
@@ -38,7 +38,7 @@ const update = async newObject => {
 // delete a blog
 const remove = async id => {
   const config = {
-    headers: { Authorization: token}
+    headers: { Authorization: token }
   }
 
   const response = await axios.delete(`${baseUrl}/${id}`, config)
