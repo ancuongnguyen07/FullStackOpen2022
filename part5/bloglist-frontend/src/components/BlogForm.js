@@ -64,7 +64,7 @@ const BlogForm = ({ addBlog }) => {
           value={url}
           handle={handleChangeUrl}
         ></FillForm>
-        <button type="submit">save</button>
+        <button id='create-blog-button' type="submit">save</button>
       </form>
     </div>
   )

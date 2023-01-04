@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-const Blog = ({ blog, updateLike, removeBlog }) => {
+const Blog = ({ blog, updateLike, removeBlog, user }) => {
   const [visible, setVisible] = useState(false)
-  const [likes, setLikes] = useState(blog.likes)
+  // const [likes, setLikes] = useState(blog.likes)
 
   const blogStyle = {
     paddingTop: 10,
@@ -30,7 +30,7 @@ const Blog = ({ blog, updateLike, removeBlog }) => {
     }
 
     updateLike(updatedBlog)
-
+    // setLikes(likes + 1)
   }
 
   const handleRemove = (event) => {
@@ -44,22 +44,23 @@ const Blog = ({ blog, updateLike, removeBlog }) => {
     }
   }
 
+  const own = blog.user && blog.user.id === user.username.id
+
   return (
-    <div style={blogStyle}>
+    <div className='blog' style={blogStyle}>
+      {blog.title} {blog.author}
       <div style={hideWhenVisible} className="alwaysShowed">
-        {blog.title} {blog.author}
         <button onClick={toggleVisibility}>view</button>
       </div>
       <div style={showWhenVisible} className="hiden">
-        <p>{blog.title}</p>
         <p>{blog.url}</p>
         <div>
-          <p>Likes: {likes}</p>
-          <button onClick={handleLike}>like</button>
+          <p>Likes: {blog.likes}</p>
+          <button className='like-button' onClick={handleLike}>like</button>
         </div>
-        <p>{blog.author}</p>
         <button onClick={toggleVisibility}>hide</button>
-        <button onClick={handleRemove}>remove</button>
+        <h5>Added by: {blog.user.name}</h5>
+        {own && <button className='remove-button' onClick={handleRemove}>remove</button>}
       </div>
 
     </div>

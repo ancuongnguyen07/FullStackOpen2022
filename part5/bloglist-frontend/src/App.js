@@ -16,6 +16,7 @@ const App = () => {
 
   // console.log(blogs.map(blog => blog.user.id))
   const blogFromRef = useRef()
+  const sortedByLikes = (a,b) => b.likes - a.likes
 
 
   const login = async (credential) => {
@@ -41,6 +42,7 @@ const App = () => {
     }
   }
 
+
   const handleLogout = (event) => {
     event.preventDefault()
     window.localStorage.removeItem('loggedInUser')
@@ -65,25 +67,29 @@ const App = () => {
   const updateLike = (blogObject) => {
     blogService.update(blogObject)
       .then(returnedBlog => {
-        setBlogs(blogs.map(blog =>
+        const updatedBlogs = blogs.map(blog =>
           blog.id === blogObject.id
             ? returnedBlog
             : blog
-        ))
+        ).sort(sortedByLikes)
+        setBlogs(updatedBlogs)
+
       })
   }
 
   const removeBlog = (id) => {
     blogService.remove(id)
-      .then(returnedBlog => {
-        setBlogs(blogs.filter(blog =>
-          blog.id !== id))
+      .then(() => {
+        const updatedBlogs = blogs.filter(blog => blog.id !== id)
+                                  .sort(sortedByLikes)
+        setBlogs(updatedBlogs)
+
       })
   }
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      setBlogs( blogs.sort(sortedByLikes) )
     )
   }, [])
 
@@ -96,31 +102,28 @@ const App = () => {
     }
   }, [])
 
-  let blogsToShow = user !== null ?
-    blogs.filter(blog => blog.user.username === user.username)
-    :
-    blogs
-
-  blogsToShow = blogsToShow.sort((a,b) => b.likes - a.likes)
-
   return (
     <div>
-      <h5>Notification: {errorMessage}</h5>
+      <h5 className='notification'>Notification: {errorMessage}</h5>
       {user === null ?
         <LoginForm login={login}></LoginForm>
         :
         <div>
           <h2>blogs</h2>
-          <h5>{user.username} logged in</h5>
+          <h5 className='notification'>{user.username} logged in</h5>
 
           <form onSubmit={handleLogout}>
             <button type='submit'>logout</button>
           </form>
 
-          {blogsToShow.map(blog => {
+          <h3>List of blogs</h3>
+
+          {blogs.map(blog => {
 
             return (
-              <Blog blog={blog} updateLike={updateLike} removeBlog={removeBlog}/>
+              <Blog key={blog.id} 
+              blog={blog} updateLike={updateLike} removeBlog={removeBlog}
+              user={user}/>
             )
           }
 
